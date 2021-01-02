@@ -1,0 +1,2572 @@
+//수식계산기(간단)
+#if 0
+#include <stdio.h>
+#define MAX 30
+int N;
+int a[30];
+char op[30];
+int stack[30];
+int sp=MAX;//스텍포인터 시작위치
+int push(int data){
+	if(sp==0) return -1;//full
+	sp--;
+	stack[sp]=data;
+	return 1;
+}
+int pop(int *p){
+	if(sp==MAX) return -1;//empty
+	*p=stack[sp];
+	sp++;
+	return 1;
+}
+int main(void){
+	int i, data, sum=0;
+	//freopen("input.txt", "r", stdin);
+	scanf("%d", &N);
+	scanf("%d", &a[0]);
+	for(i=1;i<N;i++){
+		scanf(" %c %d", &op[i], &a[i]);
+	}
+	push(a[0]);
+	for(i=1;i<N;i++){
+		if(op[i]=='+'){
+			push(a[i]);
+		}
+		else if(op[i]=='-'){
+			push(-a[i]);
+		}
+		else if(op[i]=='*'){
+			pop(&data);
+			push(data*a[i]);
+		}
+		else if(op[i]=='/'){
+			pop(&data);
+			push(data/a[i]);
+		}
+	}
+	//스택이 빌때까지 모두 합한 결과값을 인쇄
+	while(pop(&data)!=-1){
+		sum+=data;
+	}
+	printf("%d", sum);
+	return 0;
+}
+
+#endif
+
+//마라톤(브론즈)
+#if 0
+#include <stdio.h>
+#define MAX 100010
+int N;
+int a[MAX];
+int stack[MAX];
+int sp=0;
+int main(void){
+	int i;
+	scanf("%d", &N);
+	for(i=0;i<N;i++) scanf("%*d %d", &a[i]);//위치값은 무시(사용안함)
+	sp=0;
+	for(i=0;i<N;i++){
+		while(sp>0){
+			if(stack[sp]>a[i])sp--;
+			else break;
+		}
+		stack[++sp]=a[i];
+	}
+	printf("%d", sp);
+
+	return 0;
+}
+#endif
+
+//카드건네기(linear queue)
+#if 0
+#include <stdio.h>
+#define MAX (100*20)
+ int N;
+ int queue[MAX];
+ int rp, wp;
+ int rec[110];
+ int In_Queue(int data){
+	if(wp==MAX) return -1;//full
+	queue[wp]=data;
+	wp++;
+	return 1;
+ }
+ int Out_Queue(int *p){
+	if(rp==wp) return -1;//empty
+	*p= queue[rp];
+	rp++;
+	return 1;
+ }
+int main(void){
+	int i, j, cnt=0, card;
+	scanf("%d", &N);
+	rp=wp=0;
+	for(i=1;i<=N;i++){
+		In_Queue(i);//카드덱에 카드 쌓기
+	}
+	for(i=0;i<N-1;i++){//N-1회만 수행
+		cnt=queue[wp-1]/2;  //1) 가장 아래 카드를 2로 나눈 몫의 정수만큼 반복하여 
+		for(j=0;j<cnt;j++){      //제일 위에 카드부터 한 장씩 순서대로 가장 밑으로 옮긴다.
+			Out_Queue(&card);
+			In_Queue(card);
+		}
+		//2) 옮긴 후 가장 위에 올라와 있는 카드 한 장을 상대에게 넘긴다.
+		Out_Queue(&card);
+		rec[i]=card;
+	}
+	Out_Queue(&card);//3) 마지막에는 남은 카드 한 장을 넘긴다.
+	rec[i]=card;
+	for(i=0;i<N;i++) printf("%d ", rec[i]);
+      return 0;
+}
+
+#endif
+
+//카드건네기(원형 queue)
+#if 0
+#include <stdio.h>
+#define MAX (101)
+ int N;
+ int queue[MAX];
+ int rp, wp;
+ int rec[110];
+ int In_Queue(int data){
+	if((wp+1)%MAX == rp) return -1;//full
+	queue[wp]=data;
+	wp++;
+	wp%=MAX;
+	return 1;
+ }
+ int Out_Queue(int *p){
+	if(rp==wp) return -1;//empty
+	*p= queue[rp];
+	rp++;
+	rp%=MAX;
+	return 1;
+ }
+int main(void){
+	int i, j, cnt=0, card;
+	scanf("%d", &N);
+	rp=wp=0;
+	for(i=1;i<=N;i++){
+		In_Queue(i);//카드덱에 카드 쌓기
+	}
+	for(i=0;i<N-1;i++){//N-1회만 수행
+		cnt=queue[(MAX + wp - 1)%MAX]/2;  //1) 가장 아래 카드를 2로 나눈 몫의 정수만큼 반복하여 
+		for(j=0;j<cnt;j++){      //제일 위에 카드부터 한 장씩 순서대로 가장 밑으로 옮긴다.
+			Out_Queue(&card);
+			In_Queue(card);
+		}
+		//2) 옮긴 후 가장 위에 올라와 있는 카드 한 장을 상대에게 넘긴다.
+		Out_Queue(&card);
+		rec[i]=card;
+	}
+	Out_Queue(&card);//3) 마지막에는 남은 카드 한 장을 넘긴다.
+	rec[i]=card;
+	for(i=0;i<N;i++) printf("%d ", rec[i]);
+      return 0;
+}
+
+#endif
+
+//프린터큐
+#if 0
+#include <stdio.h>
+#define MAX (100*100)
+int N, M;
+int cnt[10];
+typedef struct {
+	int ord, pos;
+}QUEUE;
+QUEUE queue[MAX];
+int rp, wp;
+int In_Queue(int ord, int pos){
+	if(wp==MAX) return -1;
+	queue[wp].ord=ord;
+	queue[wp].pos=pos;
+	wp++;
+	return 1;
+}
+int Out_Queue(QUEUE *p){
+	if(rp==wp) return -1;
+	*p=queue[rp++];
+	return 1;
+}
+int solve(void){
+	int i, j, sol=0;
+	QUEUE q;
+	for(i=9;i>0;i--){
+		while(cnt[i]){
+			Out_Queue(&q);
+			if(q.ord == i){
+				cnt[i]--;
+				sol++;
+				if(q.pos==M) return sol;
+			}
+			else In_Queue(q.ord, q.pos);
+		}
+	}
+	return sol;
+}
+int main(void){
+	int ti, T;
+	scanf("%d", &T);
+	for(ti=0;ti<T;ti++){
+		int i, ord, ret;
+		rp=wp=0;
+		for(i=1;i<10;i++) cnt[i]=0;
+
+		scanf("%d %d", &N, &M);
+		for(i=0;i<N;i++){
+			scanf("%d", &ord);
+			cnt[ord]++;
+			In_Queue(ord, i);
+		}
+		ret=solve();
+		printf("%d\n", ret);
+	}
+	return 0;
+}
+#endif
+
+//프린터큐
+#if 0
+#include <stdio.h>
+#define MAX (100*100)
+int N, M;
+int cnt[10];
+typedef struct {
+	int ord, pos;
+}QUEUE;
+QUEUE queue[MAX];
+int rp, wp;
+int In_Queue(int ord, int pos){
+	if (wp == MAX) return -1;
+	queue[wp].ord = ord;
+	queue[wp].pos = pos;
+	wp++;
+	return 1;
+}
+int Out_Queue(QUEUE *p){
+	if (rp == wp) return -1;
+	*p = queue[rp++];
+	return 1;
+}
+int solve(void){
+	int i, j, sol = 0;
+	QUEUE q;
+	for (i = 9; i>0; i--){
+		while (cnt[i]){//우선순위가 높은 문서부터 인쇄
+			Out_Queue(&q);
+			if (q.ord == i){
+				cnt[i]--;
+				sol++;
+				if (q.pos == M) return sol;
+			}
+			else In_Queue(q.ord, q.pos);
+		}
+	}
+	return sol;
+}
+int main(void){
+	int ti, T;
+	scanf("%d", &T);
+	for (ti = 0; ti<T; ti++){
+		int i, ord, ret;
+		rp = wp = 0;
+		for (i = 1; i<10; i++) cnt[i] = 0;
+		scanf("%d %d", &N, &M);
+		for (i = 0; i<N; i++){
+			scanf("%d", &ord);
+			cnt[ord]++;
+			In_Queue(ord, i);
+		}
+		ret = solve();
+		printf("%d\n", ret);
+	}
+	return 0;
+}
+#endif
+
+//불쾌한 날
+#if 0
+#include <stdio.h>
+#define MAX 80010
+int N;
+int a[MAX];
+int stack[MAX];
+int sp;
+int main(void){
+	int i;
+	long long cnt = 0;
+	scanf("%d", &N);
+	for (i = 0; i<N; i++) scanf("%d", &a[i]);
+	sp = 0;
+	for (i = 0; i<N; i++){
+		//현재의 소를 이전의 소(stack)가 몇마리가 보고 있는지를 탐색
+		//1] 스택이 빌때까지 현재소보다 작거나 같으면 pop, 크다면 break
+		while (sp > 0){
+			if (stack[sp] <= a[i]) sp--;
+			else break;
+		}
+		//2] 스택에 있는 마리수를 더하고 현재소를 push
+		cnt += sp;
+		stack[++sp] = a[i];
+	}
+	printf("%lld", cnt);
+	return 0;
+}
+#endif
+
+//색종이중
+#if 1
+#include <stdio.h>
+int map[110][110];//도화지
+int dr[4] = {-1, 1, 0, 0};//상하좌우 행의 증감치
+int dc[4] = {0, 0, -1, 1};//상하좌우 열의 증감치
+int N;
+int main(void){
+	int i, j, k, r, c, cnt = 0;
+	scanf("%d", &N);
+	for (k = 0; k < N; k++){
+		scanf("%d %d", &r, &c);
+		//현재 색종이 도화지에 붙이기
+		/*for (i = r; i < r + 10; i++){
+			for (j = c; j < c + 10; j++){
+				map[i][j] = 1;
+			}
+		}*/
+		for (i = 0; i <10; i++){
+			for (j = 0; j < 10; j++){
+				map[r+i][c+j] = 1;
+			}
+		}
+
+	}
+	//도화지에 색종이의 둘레 구하기
+	for (i = 0; i < 100; i++){
+		for (j = 0; j < 100; j++){
+			if (map[i][j] == 1){
+				for (k = 0; k < 4; k++){
+					if (map[i + dr[k]][j + dc[k]] == 0) cnt++;
+				}
+				//if (map[i-1][j] == 0) cnt++;//상
+				//if (map[i+1][j] == 0) cnt++;//하
+				//if (map[i][j-1] == 0) cnt++;//좌
+				//if (map[i][j+1] == 0) cnt++;//우
+			}
+		}
+	}
+	printf("%d\n", cnt);
+	return 0;
+}
+#endif
+
+//악수
+#if 0
+#include <stdio.h>
+char map[60][60];
+int R, C;
+int dr[8] = {-1, -1, 0, 1, 1,  1, 0,  -1};//시계방향으로 8방향
+int dc[8] = { 0,  1, 1, 1, 0, -1, -1, -1};
+int main(void){
+	int i, j, k, cnt = 0, sol = 0, max = 0;
+	scanf("%d %d", &R, &C);
+	for (i = 1; i <= R; i++){
+		scanf("%s", &map[i][1]);//1행1열	부터 입력
+	}
+	//기존사람들의 악수회수 
+	for (i = 1; i <= R; i++){
+		for (j = 1; j <= C; j++){
+			if (map[i][j] == 'o'){//기존사람위치에서 8방향 사람과 악수횟수
+				for (k = 0; k < 8; k++){
+					if (map[i + dr[k] ][j + dc[k] ] == 'o') cnt++;
+				}
+			}
+		}
+	}
+	sol = cnt/2;//기존악수회수(중복배제)
+	cnt=0;
+	//민혁이의 최대 악수 회수 탐색
+	for (i = 1; i <= R; i++){
+		for (j = 1; j <= C; j++){
+			if (map[i][j] == '.'){//빈자리에서 8방향 사람과 최대악수횟수
+				cnt = 0;
+				for (k = 0; k < 8; k++){
+					if (map[i + dr[k]][j + dc[k]] == 'o') cnt++;
+				}
+				if (max < cnt)max = cnt;//최대악수회수 비교
+			}
+		}
+	}
+	printf("%d\n", sol + max);
+	return 0;
+}
+#endif
+
+
+//미로탈출로봇
+#if 01
+#include <stdio.h>
+#define MAX 110
+typedef struct {
+	int r, c, time;
+}QUE;
+QUE que[MAX*MAX];
+int rp, wp;
+int R, C, sr, sc, er, ec;
+int map[MAX][MAX];
+void In_Queue(int r, int c, int time){
+	que[wp].r = r;
+	que[wp].c = c;
+	que[wp].time = time;
+	wp++;
+}
+int BFS(void){
+	int dr[4] = { -1, 1, 0, 0 }, dc[4] = { 0, 0, -1, 1 };
+	int i, nr, nc;//다음가볼좌표
+	QUE q;//큐에서 읽을 데이타
+	In_Queue(sr, sc, 0);//1] 시작점 큐에 저장
+	map[sr][sc] = 1;//방문표시
+	while (rp < wp){
+		q = que[rp++];//2] 큐에서 읽기(현재위치)
+		if (q.r == er && q.c == ec) return q.time;//도착하면 리턴
+		for (i = 0; i < 4; i++){//사방탐색
+			nr = q.r + dr[i];
+			nc = q.c + dc[i];
+			//if (nr == er && nc == ec) return q.time + 1;
+			//if (nr<1 || nr>R || nc<1 || nc>C) continue;//범위 체크
+			if (nr >= 1 && nr <= R && nc >= 1 && nc <= C) {
+				if (map[nr][nc] == 0){//연결점(길)
+					In_Queue(nr, nc, q.time + 1);
+					map[nr][nc] = 1;
+				}
+			}
+		}
+	}
+	return -1;//4] 큐가 빈상태(예외상황)
+}
+int main(void){
+	int i, j;
+	scanf("%d %d", &C, &R);
+	scanf("%d %d %d %d", &sc, &sr, &ec, &er);
+	for (i = 1; i <= R; i++){
+		for (j = 1; j <= C; j++){
+			scanf("%1d", &map[i][j]);
+		}
+	}
+	printf("%d\n", BFS());//도착점까지 최단시간을 리턴받음
+	return 0;
+}
+#endif
+
+//저글링
+#if 0
+#include <stdio.h>
+#define MAX 110
+typedef struct {
+	int r, c, time;
+}QUE;
+QUE que[MAX*MAX];
+int rp, wp;
+int R, C, sr, sc, er, ec;
+int map[MAX][MAX];
+void In_Queue(int r, int c, int time){
+	que[wp].r = r;
+	que[wp].c = c;
+	que[wp].time = time;
+	wp++;
+}
+int BFS(void){
+	int dr[4] = { -1, 1, 0, 0 }, dc[4] = { 0, 0, -1, 1 };
+	int i, nr, nc;//다음가볼좌표
+	QUE q;//큐에서 읽을 데이타
+	In_Queue(sr, sc, 3);//1] 시작점 큐에 저장
+	map[sr][sc] = 0;//방문표시
+	while (rp < wp){
+		q = que[rp++];//2] 큐에서 읽기(현재위치)
+		for (i = 0; i < 4; i++){//사방탐색
+			nr = q.r + dr[i];
+			nc = q.c + dc[i];
+			if (nr<1 || nr>R || nc<1 || nc>C) continue;//범위 체크
+			if (map[nr][nc] == 1){//연결점(저글링)
+				In_Queue(nr, nc, q.time + 1);
+				map[nr][nc] = 0;
+			}
+		}
+	}
+	return q.time;//4] 큐가 비었을때 마지막 죽은 저글링의 시간을 리턴
+}
+int main(void){
+	int i, j, cnt=0;
+	scanf("%d %d", &C, &R);
+	for (i = 1; i <= R; i++){
+		for (j = 1; j <= C; j++){
+			scanf("%1d", &map[i][j]);
+		}
+	}
+	scanf("%d %d", &sc, &sr);
+	printf("%d\n", BFS());//마지막 죽은 저글링의 최단시간을 리턴받음
+	for (i = 1; i <= R; i++){
+		for (j = 1; j <= C; j++){
+			cnt += map[i][j];//살아남은 저글링의 개수 카운트
+		}
+	}
+	printf("%d\n", cnt);
+	return 0;
+}
+#endif
+
+
+//잃어버린 페이지
+#if 0
+#include <stdio.h>
+int P, N;
+int main(void){
+	int a, b, c;
+	scanf("%d %d", &N, &P);
+	if (P <= N / 2){//왼쪽지면
+		if (P % 2){//홀수 페이지
+			a = P + 1;
+			b = N - P;
+			c = N - P + 1;
+		}
+		else{//짝수페이지
+			a = P - 1;
+			b = N - P + 1;
+			c = N - P + 2;
+		}
+	}
+	else{//오른쪽지면
+		if (P % 2){//홀수 페이지
+			a = N - P;
+			b = N - P + 1;
+			c = P + 1;
+		}
+		else{//짝수페이지
+			a = N - P + 1;
+			b = N - P + 2;
+			c = P - 1;
+		}
+	}
+	printf("%d %d %d", a, b, c);
+	return 0;
+}
+#endif
+//시간외 근무수당
+#if 0
+#include <stdio.h>
+
+int main(void){
+	int i;
+	double s, e, time, sum = 0, sol = 0;
+	for (i = 0; i < 5; i++){
+		scanf("%lf %lf", &s, &e);
+		//1. 시간외 근무는 최초 1시간은 제외하며, 최대 4시간까지 인정한다
+		time = e - s - 1;
+		if (time <= 0) time = 0;
+		else if (time >= 4) time = 4;
+		sum += time;
+	}
+	//2. 시간외 근무에 따른 금액은 30분에 5, 000원으로 한다.
+	sol = sum * 10000;
+	//. 5일간의 시간외 근무 합계가 15시간 이상이면 받는 금액의 5 % 를 감하여 지급한다.
+	if (sum >= 15) sol = sol - sol*0.05;
+	//	4. 5일간의 시간외 근무 합계가 5시간 이하이면 받는 금액의 5 % 를 더하여 지급한다.
+	else if (sum <= 5) sol = sol + sol*0.05;
+	printf("%d", (int)sol);
+	return 0;
+}
+#endif
+
+//배수의 합
+#if 0
+#include <stdio.h>
+int main(void){
+	int i=0, N, sum = 0;
+	scanf("%d", &N);
+	while (sum <10000){
+		i += N;
+		sum += i;
+	}
+	printf("%d", i-N);
+
+	return 0;
+}
+#endif
+
+// [TST]가장 가까운 짝수인 7의 배수
+#if 0
+#include <stdio.h>
+int main(void){
+	int N, max=14, mid;
+	scanf("%d", &N);
+	if (N > 14){
+		while (max < N){//N을 초과하는 14의 배수를 찾기
+			max += 14;
+		}
+		mid = max - 7;
+		if (N <= mid) printf("%d", max - 14);//중간값보다 작으면
+		else printf("%d", max);//중간값보다 크면
+	}
+	else{
+		printf("14");
+	}
+	return 0;
+}
+#endif
+
+//폭탄 돌리기
+#if 0
+#include <stdio.h>
+int main(void){
+	int i, K, N, time, sum = 0;
+	char pass;
+	scanf("%d", &K);
+	scanf("%d", &N);
+	for (i = 0; i < N; i++){
+		scanf(" %d %c", &time, &pass);
+		sum += time;
+		if (sum >= 211) break;
+		if (pass == 'T') K = K % 8 + 1;
+	}
+	printf("%d", K);
+	return 0;
+}
+#endif
+
+//주차요금
+#if 0
+#include <stdio.h>
+int main(void){
+	int N, i, m, pay = 0, sum = 0;
+	scanf("%d", &N);
+	for (i = 0; i < N; i++){
+		scanf("%d", &m);
+		//주차시간이 10분 미만이면 무료이며, 
+		if (m < 10) pay = 0;
+		//10분 이상 30분 이하는 500원이다. 
+		else if (m <= 30) pay = 500;
+		//30분을 초과시 30분 요금에 30분 초과 분에 대한 요금을 
+		//10분에 300원씩을 더 받는다.
+		else{
+			int min = m - 30;
+			pay = 500 + ((min - 1) / 10 + 1) * 300;
+		}
+		if (pay >= 50000) pay = 50000;
+		sum += pay;
+		//하루 최대 주차요금은 한 대당 50, 000원을 넘을 수 없다.
+	}
+	printf("%d", sum);
+	return 0;
+}
+#endif
+
+//cd 만들기
+#if 0
+#include <stdio.h>
+int N, T;
+int song[210];
+void sort(void){
+	int i, j, temp;
+	for (i = 0; i < N - 1; i++){
+		for (j = i + 1; j < N; j++){
+			if (song[i] > song[j]){
+				temp = song[i];
+				song[i] = song[j];
+				song[j] = temp;
+			}
+		}
+	}
+}
+int main(void){
+	int i, sum=0;
+	scanf("%d %d", &N, &T);
+	for (i = 0; i < N; i++)	scanf("%d", &song[i]);
+	sort();//오름차순 정렬
+	//T분이내에 담은 곡의 개수를 계산
+	for(i=0;i<N;i++){
+		sum+=song[i];
+		if(sum>T) break;
+	}
+	printf("%d", i);
+	return 0;
+}
+#endif
+
+#if 01
+#include <stdio.h>
+int a, b;
+int sosu[100001];
+void sosu_find(int e){
+	int i, j;
+	for (i = 2; i*i <= e; i++){//2, 3, 4, ...배수
+		if (sosu[i]) continue;
+		for (j = i * 2; j <= e; j += i){// j+=2, j+=3, ...
+			sosu[j] = 1;//배수를 체크(체크되지 않는 수가 소수임)
+		}
+	}
+}
+int main(void){
+	int i, j, temp, min = 100000, max = 0, cnt = 0;
+	scanf("%d %d", &a, &b);
+	if (a > b) {//a가 크면 교환
+		temp = a; 		a = b; 		b = temp;
+	}
+	sosu[1] = 1;
+	sosu_find(b);//2~b까지 소수를 찾기
+
+	for (i = a; i <= b; i++){
+		if (sosu[i] == 0) cnt++;
+	}
+	for (i = a; i <= b; i++){
+		if (sosu[i] == 0) break;
+	}
+	min = i;
+	for (i = b; i >= a; i--){
+		if (sosu[i] == 0) break;
+	}
+	max = i;
+	printf("%d\n", cnt);
+	printf("%d\n", max + min);
+	
+	// 2중루프로 2~i-1까지 나머지를 계산하는 구현(시간초과)
+	//for (i = a; i <= b; i++){
+	//	for (j = 2; j < i; j++){
+	//		if (i%j == 0) break;
+	//	}
+	//	if (j == i) {//소수가 아닌경우
+	//		cnt++;
+	//		if (i > max) max = i;
+	//		if (i < min) min = i;
+	//	}
+	//}
+	//printf("%d\n", cnt);
+	//printf("%d\n", max + min);
+
+	
+	
+
+	return 0;
+}
+#endif
+
+#if 0
+#include <stdio.h>
+
+int main(void){
+
+	return 0;
+}
+#endif
+
+
+//소수
+#if 0
+#include <stdio.h>
+#include<math.h>
+
+int a, b;
+int sosu[100001];
+void sosu_find(int e){
+	int i, j;
+	for (i = 2; i*i <= e; i++){//2, 3, 4, ...배수
+		if (sosu[i]) continue;
+		for (j = i * 2; j <= e; j += i){// j+=2, j+=3, ...
+			sosu[j] = 1;//배수를 체크(체크되지 않는 수가 소수임)
+		}
+	}
+}
+int main(void){
+	int i, j, temp, min = 100000, max = 0, cnt = 0, flag, n;
+	scanf("%d %d", &a, &b);
+	if (a > b) {//a가 크면 교환
+		temp = a; 		a = b; 		b = temp;
+	}
+	//sosu[1] = 1;
+	//sosu_find(b);//2~b까지 소수를 찾기
+
+	//for (i = a; i <= b; i++){
+	//	if (sosu[i] == 0) cnt++;
+	//}
+	//for (i = a; i <= b; i++){
+	//	if (sosu[i] == 0) break;
+	//}
+	//min = i;
+	//for (i = b; i >= a; i--){
+	//	if (sosu[i] == 0) break;
+	//}
+	//max = i;
+	//printf("%d\n", cnt);
+	//printf("%d\n", max + min);
+	
+	 //2중루프로 2~i-1까지 나머지를 계산하는 구현(시간초과)
+	// 루트값까지만 시도해본다
+	if (a == 1) a = 2;
+	for (i = a; i <= b; i++){
+		flag = 0;
+		n = (int)sqrt(i);
+		for (j = 2; j <= n; j++){
+			if (i%j == 0){
+				flag = 1;
+				break;
+			}
+		}
+		if (flag==0) {//소수인 경우(j로 나누어지지 않는 수)
+			cnt++;
+			if(max<i) max=i;
+			if(min>i) min=i;
+		}
+	}
+	printf("%d\n", cnt);
+	printf("%d\n", max + min);
+
+	
+	
+
+	return 0;
+}
+#endif
+
+// 숫자근
+#if 0
+#include <stdio.h>
+int N;
+int a[1001];
+int root_calc(int num){
+	for (;;){
+		int sum = 0;
+		while (num){//몫이 0일떄까지 반복
+			sum += num % 10;
+			num /= 10;
+		}
+		if (sum < 10) return sum;//한자리가 되면 리턴
+		num = sum;//한자리가 아니면 다시 반복
+	}
+}
+int main(void){
+	int i, root, sol, max = 0;
+	scanf("%d", &N);
+	for (i = 0; i < N; i++)	scanf("%d", &a[i]);
+	max = 0;
+	for (i = 0; i < N; i++){
+		root = root_calc(a[i]);
+		//가장 큰 숫자근이면 해당 정수를 해답으로
+		if (max < root) {
+			max = root;
+			sol = a[i];
+		}
+		//가장 큰 숫자근과 같으면 더 작은 정수를 해답으로
+		if (max == root) {
+			if (sol > a[i]) sol = a[i];
+		}
+	}
+	printf("%d", sol);
+	return 0;
+}
+#endif
+
+//주사위의 눈의 합
+#if 0
+#include <stdio.h>
+int main(void){
+	int N, i, j, cnt=0;
+	scanf("%d", &N);
+	for (i = 1; i <= 6; i++){
+		for (j = 1; j <= 6; j++){
+			if (i + j == N) cnt++;
+		}
+	}
+	printf("%.4f%%", cnt*100.0/36);
+	return 0;
+}
+#endif
+
+//숫자 맞추기
+#if 0
+#include <stdio.h>
+int main(void){
+	char X[5], Y[5];
+	int A = 0, B = 0, i, j;
+	scanf("%s %s", X, Y);
+	//A개수  : 같은 위치에 같은 숫자인지 
+	for (i = 0; i < 4; i++){
+		if (X[i] == Y[i]) A++;
+	}
+	//B개수 : 다른 위치에 같은 숫자인지
+	for (i = 0; i < 4; i++){//X
+		for (j = 0; j < 4; j++){//Y
+			if (i == j) continue;//같은 자리는 스킵
+			if (X[i] == Y[j]) B++;
+		}
+	}
+	printf("%dA%dB", A, B);
+
+	return 0;
+}
+#endif
+//연속부분 최대곱
+#if 0
+#include <stdio.h>
+double a[10001];
+int N;
+int main(void){
+	int i, j;
+	double max = 0, mul = 1;
+	scanf("%d", &N);
+	for (i = 0; i < N; i++) scanf("%lf", &a[i]);
+	for (i = 0; i < N; i++){//start
+		mul = 1;//초기화
+		for (j = i; j < N; j++){//start부터 곱하기
+			mul *= a[j];
+			if (max < mul) max = mul;
+		}
+	}
+	printf("%.3f", max);
+	return 0;
+}
+#endif
+
+//100만들기
+#if 0
+#include <stdio.h>
+int a[10];
+void sort(void){
+	int i, j, temp;
+	for (i = 0; i < 8; i++){
+		for (j = i + 1; j < 9; j++){
+			if (a[i] > a[j]) {
+				temp = a[i];
+				a[i] = a[j];
+				a[j] = temp;
+			}
+		}
+	}
+}
+int main(void){
+	int i, j, sum = 0;
+	for (i = 0; i < 9; i++){
+		scanf("%d", &a[i]);
+		sum += a[i];
+	}
+	sort();
+	for (i = 0; i < 9 - 1; i++){//첫번째 
+		for (j = i + 1; j < 9; j++){//2번째
+			if (a[i] + a[j] == sum - 100){
+				a[i] = a[j] = 0;
+				goto end;
+			}
+		}
+	}
+end:
+	for (i = 0; i < 9; i++){
+		if (a[i]) printf("%d\n", a[i]);
+	}
+
+	return 0;
+}
+#endif
+
+
+//문자까지의 문자열
+#if 0
+#include <stdio.h>
+
+int main(void){
+	char N, i;
+	scanf("%c", &N);
+	if (N >= 'a' && N <= 'z'){
+		for (i = 'a'; i <= N; i++) printf("%c", i);
+	}
+	else if(N>='A' && N<='Z') {
+		for (i = N; i <= 'Z'; i++) printf("%c", i);
+	}
+	else printf("Error");
+	return 0;
+}
+#endif
+
+//그릇
+#if 0
+#include <stdio.h>
+char a[51];
+int main(void){
+	int i, sum = 0;
+	scanf("%s", a);
+	sum = 10;//첫번째 그릇의 높이
+	for (i = 1; a[i]; i++){//2번째부터 NULL일때까지 비교
+		if (a[i] == a[i - 1]) sum += 5;//포개져있으면 +5
+		else sum += 10;//뒤집어 있으면 +10
+	}
+	printf("%d", sum);
+	return 0;
+}
+#endif
+
+//가장 많은 알파벳은?
+#if 0
+#include <stdio.h>
+char str[31];
+int cnt[26];//알파벳별 카운트
+int main(void){
+	int i, max = 0, idx = 0;
+	scanf("%s", str);
+	for (i = 0; str[i]; i++){
+		if (str[i] >= 'A' && str[i] <= 'Z') continue;//대문자제외
+		idx = str[i] - 'a';
+		cnt[idx]++;//소문자에 해당 idx방을 카운트
+	}
+	//가장 많은 카운트의 idx를 찾기
+	idx = 0;
+	for (i = 0; i < 26; i++){
+		if (max < cnt[i]){
+			max = cnt[i];
+			idx = i;
+		}
+	}
+	printf("%c", 'a' + idx);
+	return 0;
+}
+#endif
+
+//3개의 정수로 분리하기
+#if 0
+#include <stdio.h>
+char str[21];
+int X;
+int main(void){
+	int i, j,k, len = 0, flag=0;
+	long long A = 0, B = 0, C=0;
+	scanf("%s %d", str, &X);
+	for (i = 0; str[i]; i++) len++; //길이계산
+	A = 0;
+	for (i = 0; i < len -2; i++){//A정수의 끝요소 제어
+		A = A * 10 + (str[i] - '0');
+		B = 0;
+		for (j = i + 1; j < len - 1; j++){//B정수의 끝요소 제어
+			B = B * 10 + (str[j] - '0');
+			C = 0;
+			for (k = j+1; k <len; k++) {//C정수
+				C = C * 10 + (str[k] - '0');
+			}
+			printf("%lld %lld %lld\n", A, B, C);
+		}
+		
+	}
+
+	return 0;
+}
+#endif
+//문자열 찾기
+#if 1
+#include <stdio.h>
+#include <string.h>
+char str[10001];
+int main(void){
+	int i,len, Kcnt = 0, Icnt = 0;
+	scanf("%s", str);
+	len = strlen(str);
+	for (i = 0; i < len - 2; i++){
+		if (strncmp(str + i, "KOI", 3) == 0) Kcnt++;
+		if (strncmp(str + i, "IOI", 3) == 0) Icnt++;
+	}
+	printf("%d\n",Kcnt);
+	printf("%d\n", Icnt);
+	return 0;
+}
+#endif
+
+#if 1
+#include <stdio.h>
+int N, K;
+char str[30];
+int num[30];//정수를 저장할 배열
+int num_cnt = 0;//정수 개수
+int int_calc(char ch){
+	if (ch >= '0' && ch <= '9') return ch - '0';
+	else return ch - 'A' + 10;
+}
+void solve(void){
+	int i, j, sum = 0, cnt=N/4;//cnt는 한변당 글자개수
+	for (i = 0; i < N; i += cnt){//시작위치 제어
+		sum = 0;
+		for (j = i; j < i + cnt; j++){//i위치에서 cnt자 만큼 정수화
+			sum = sum * 16 + int_calc(str[j]);
+		}
+		num[num_cnt++] = sum;
+	}
+}
+void sort(void){
+	int i, j, temp;
+	for (i = 0; i < num_cnt - 1; i++){
+		for (j = i + 1; j < num_cnt; j++){
+			if (num[i] < num[j]){
+				temp = num[i];
+				num[i] = num[j];
+				num[j] = temp;
+			}
+			else if (num[i] == num[j]) num[j] = 0;
+		}
+	}
+}
+int main(void){
+	int i, j, temp, cnt=0;
+	scanf("%d %d", &N, &K);
+	scanf("%s", str);
+	cnt = N / 4;//회전수
+	for (i = 0; i < cnt; i++){//1자씩 shift를 cnt회만큼 반복
+		temp = str[N - 1];//맨끝글자 임시변수에 백업
+		for (j = N-2; j>=0; j--){
+			str[j+1] = str[j];
+		}
+		str[0] = temp;
+		//printf("%s\n", str);
+		solve();//4변의 문자열을 정수화하여 배열에 저장
+	}
+	sort();//내림차순 정렬
+	//중복 배제하여 카운트하여 K번째 위치한 정수를 찾기
+	//cnt=0;
+	//num[num_cnt]=0;//마지막 정수와 비교위해 초기화
+	//for(i=0;i<num_cnt;i++){
+	//	if (num[i] != num[i + 1]){
+	//		cnt++;
+	//		if (cnt == K) break;
+	//	}
+	//}
+	printf("%d", num[K-1]);
+	return 0;
+}
+#endif
+
+//같은모양찾기 심플
+#if 0
+#include <stdio.h>
+char mo[110][110];//모눈종이
+char pat[110][110];//패턴
+int M, P;
+int check(int i, int j){
+	int k, l;
+	for (k = 0; k < P; k++){//패턴의 행
+		for (l = 0; l < P; l++){//패턴의 열
+			if (mo[i + k][j + l] != pat[k][l]){
+				return 0;//모양이 다르면 리턴
+			}
+		}
+	}
+	return 1;//같은 모양을 찾음
+}
+int main(void){
+	int i, j, k, l, cnt = 0, sol = 0, flag;
+	scanf("%d", &M);
+	for (i = 0; i < M; i++)scanf("%s", mo[i]);
+	scanf("%d", &P);
+	for (i = 0; i < P; i++)scanf("%s", pat[i]);
+	cnt = sol = 0;
+	for (i = 0; i <=M-P; i++){//모눈종이의 행의 제어
+		for (j = 0; j <=M-P; j++){//모눈종이의 열 제어
+			if (check(i, j) == 1) sol++;
+		}
+	}
+	printf("%d\n", sol);
+	return 0;
+}
+#endif
+
+//회전
+#if 01
+#include <stdio.h>
+int N;
+int a[51][51];
+int b[51][51];
+void copy(void){
+	int i, j;
+	for (i = 0; i < N; i++){
+		for (j = 0; j < N; j++){
+			a[i][j] = b[i][j];
+		}
+	}
+}
+void rotate(int cnt){
+	int i, j, k;
+	for (k = 0; k < cnt; k++){
+		for (i = 0; i < N; i++){
+			for (j = 0; j < N; j++){
+				b[j][N - 1 - i] = a[i][j];
+			}
+		}
+		copy();
+	}
+}
+void disp(void){
+	int i, j;
+	for (i = 0; i < N; i++){
+		for (j = 0; j < N; j++){
+			printf("%d ", b[i][j]);
+		}
+		printf("\n");
+	}
+}
+int main(void){
+	int i, j, k;
+	scanf("%d", &N);
+	for (i = 0; i < N; i++){
+		for (j = 0; j < N; j++){
+			scanf("%d", &a[i][j]);
+		}
+	}
+	for(;;){
+		scanf("%d", &k);//각도
+		if (k == 0) break;
+		if (k == 90){
+			rotate(1);
+		}
+		else if (k == 180){
+			rotate(2);
+		}
+		else if (k == 270){
+			rotate(3);
+		}
+		else if (k == 360){
+			rotate(4);
+		}
+		//b배열 인쇄
+		disp();
+	}
+	return 0;
+}
+#endif
+
+//창고다각형
+#if 0
+#include <stdio.h>
+typedef struct {
+	int h, l;
+}COLUMN;
+COLUMN column[1001];
+int N;
+void sort(void){
+	int i, j;
+	COLUMN temp;
+	for (i = 0; i < N - 1; i++){
+		for (j = i + 1; j < N; j++){
+			if (column[i].l > column[j].l){
+				temp = column[i];
+				column[i] = column[j];
+				column[j] = temp;
+			}
+		}
+	}
+}
+int main(void){
+	int i, j, curH, curL, area = 0;
+	scanf("%d", &N);
+	for (i = 0; i < N; i++){
+		scanf("%d %d", &column[i].l, &column[i].h);
+	}
+	sort();
+	//오른방향으로 면적계산
+	curH=column[0].h;
+	curL=column[0].l;
+	for (i = 1; i < N; i++){
+		//현재높이보다 이상인 기둥을 찾아서 너비*높이 계산
+		if (column[i].h >= curH){
+			area += curH * (column[i].l - curL);
+			curH = column[i].h;//현재기준을 i번째로
+			curL = column[i].l;
+		}
+	}
+	//왼쪽방향으로 면적계산
+	curH = column[N-1].h;
+	curL = column[N-1].l;
+	for (i = N-2; i>=0; i--){
+		//현재높이보다 큰 기둥을 찾아서 너비*높이 계산
+		if (column[i].h > curH){
+			area += curH * (curL - column[i].l);
+			curH = column[i].h;//현재기준을 i번째로
+			curL = column[i].l;
+		}
+	}
+	//마지막 큰 기둥의 넓이
+	area += curH;
+	printf("%d", area);
+
+	return 0;
+}
+#endif
+
+//미로탈출 중간단계
+#if 0
+#include <stdio.h>
+int map[20][20];
+int dr[5] = {0, 1, 0, -1, 0}, dc[5] = {0, 0, -1, 0, 1};//1은 아래, 2는 왼쪽, 3은 위, 4는 오른쪽
+int dir[4];
+int N;
+int main(void){
+	int i, j, r, c, nr, nc, cnt = 0, dir_no=0;
+	scanf("%d", &N);
+	for (i = 0; i <= N + 1; i++){
+		for (j = 0; j <= N + 1; j++){
+			map[i][j] = 1;//맵 벽처리
+		}
+	}
+	for (i = 1; i <= N; i++){
+		for (j = 1; j <= N; j++){
+			scanf("%1d", &map[i][j]);
+		}
+	}
+	for(i=0;i<4;i++) scanf("%d", &dir[i]);
+	r = 1;//1행1열에서 시작
+	c = 1;
+	map[r][c] = 2;
+	dir_no = 0;//방향순서는 dir[0]요소부터 시작
+	for (;;){
+		r += dr[dir[dir_no]];
+		c += dc[dir[dir_no]];
+		if (map[r][c] == 0){
+			map[r][c] = 2;//방문표시하고 카운트
+			cnt++;
+		}
+		else if (map[r][c] == 1){
+			//이전자리로 좌표이동하고 방향전환
+			r -= dr[dir[dir_no]];
+			c -= dc[dir[dir_no]];
+			dir_no = (dir_no + 1) % 4;
+		}
+		else break;//지나간 자리이면 종료
+	}
+	printf("%d\n", cnt);
+	return 0;
+}
+#endif
+
+//미로탈출 중간단계(현재좌표와 다음좌표를 이용)
+#if 0
+#include <stdio.h>
+int map[20][20];
+int dr[5] = {0, 1, 0, -1, 0}, dc[5] = {0, 0, -1, 0, 1};//1은 아래, 2는 왼쪽, 3은 위, 4는 오른쪽
+int dir[4];
+int N;
+int main(void){
+	int i, j, r, c, nr, nc, cnt = 0, dir_no=0;
+	scanf("%d", &N);
+	for (i = 0; i <= N + 1; i++){
+		for (j = 0; j <= N + 1; j++){
+			map[i][j] = 1;//맵 벽처리
+		}
+	}
+	for (i = 1; i <= N; i++){
+		for (j = 1; j <= N; j++){
+			scanf("%1d", &map[i][j]);
+		}
+	}
+	for(i=0;i<4;i++) scanf("%d", &dir[i]);
+	r = 1;//1행1열에서 시작
+	c = 1;
+	map[r][c] = 2;
+	dir_no = 0;//방향순서는 dir[0]요소부터 시작
+	for (;;){
+		nr = r+ dr[dir[dir_no]];//다음 좌표
+		nc = c+ dc[dir[dir_no]];
+		if (map[nr][nc] == 0){
+			map[nr][nc] = 2;//방문표시하고 카운트
+			r = nr;  c = nc;//다음좌표로 현재위치 이동
+			cnt++;
+		}
+		else if (map[nr][nc] == 1){
+			dir_no = (dir_no + 1) % 4;//방향만 전환
+		}
+		else break;//지나간 자리이면 종료
+	}
+	printf("%d\n", cnt);
+	return 0;
+}
+#endif
+
+//회전초밥고(2중루프로 -> 타임리밋걸림)
+#if 0
+#include <stdio.h>
+int arr[3000001];
+int chk[3001];//초밥 체크
+int N, d, k, c;
+int main(void){
+	int i, j, max = 0, type = 0;
+	scanf("%d %d %d %d", &N, &d, &k, &c);//초밥개수, 가짓수, 연속개수, 쿠폰 번호
+	for (i = 0; i < N; i++) scanf("%d", &arr[i]);
+	for (i = 0; i < N; i++){//시작위치
+		//연속한 K접시 체크
+		for (j = 0; j < k; j++){
+			chk[arr[(i + j) % N]] = 1;
+		}
+		//쿠폰확인
+		if (chk[c] == 0) type++;
+		//카운트세고 동시에 초기화
+		for (j = 1; j <= d; j++){
+			type += chk[j];
+			chk[j] = 0;
+		}
+		if (max < type) max = type;
+		type = 0;
+	}
+	printf("%d", max);
+	return 0;
+}
+#endif
+
+//회전초밥고(1중루프로)
+#if 0
+#include <stdio.h>
+int arr[3000001];
+int chk[3001];//초밥 체크
+int N, d, k, c;
+int main(void){
+	int i, j, max = 0, type = 0, temp;
+	scanf("%d %d %d %d", &N, &d, &k, &c);//초밥개수, 가짓수, 연속개수, 쿠폰 번호
+	for (i = 0; i < N; i++) scanf("%d", &arr[i]);
+	//K접시를 연속해서 카운트
+	for (i = 0; i < k; i++){
+		if (chk[arr[i]]++ == 0) type++;//신규로 먹으면 종류의 개수 카운트
+	}
+	max = type;
+	for (i = 0; i < N-1; i++){//시작위치
+		//먹은 첫번째 먼저 뺀후 잔량 없으면 종류개수 차감
+		//--chk[arr[i]];
+		if (--chk[arr[i]] == 0) type--;
+		//K번째 초밥이 신규로 먹으면 종류의 개수 카운트
+		if (chk[arr[(i + k)%N]]++ == 0) type++;
+		//chk[arr[(i + k)%N]]++; 
+		//쿠폰을 안먹었으면 1개 추가하여 max 비교
+		temp = type;
+		if (chk[c] == 0) temp++;
+		if (max < temp) max = temp;
+	}
+	printf("%d", max);
+	return 0;
+}
+#endif
+
+//고기잡이
+#if 01
+#include <stdio.h>
+int x[101], y[101];
+int N, L, M;
+int main(void){
+	int i, j, k, h, w, cnt = 0, x1, y1, x2, y2, max=0;
+	scanf("%d %d %d", &N, &L, &M);
+	for (i = 0; i < M; i++){
+		scanf("%d %d", &y[i], &x[i]);
+	}
+	for(h=1;h<L/2;h++){//그물
+		w = L / 2 - h;
+		for (i = 0; i < M; i++){//y좌표
+			y1 = y[i];
+			for (j = 0; j < M; j++){//x좌표
+				x1 = x[j];
+				cnt = 0;
+				for(k = 0; k < M; k++){//물고기
+					x2 = x1 + w;
+					y2 = y1 + h;
+					if ( x[k]>=x1 && x[k]<=x2 && y[k]>=y1 && y[k]<=y2) cnt++;
+				}
+				if (max < cnt) max = cnt;
+			}
+		}
+	}
+	printf("%d", max);
+	return 0;
+}
+#endif
+
+//고기잡이
+#if 0
+#include <stdio.h>
+int x[101], y[101];
+int N, L, M;
+int main(void){
+	int i, j, k, h, w, cnt = 0, x1, y1, x2, y2, max=0;
+	scanf("%d %d %d", &N, &L, &M);
+	for (i = 0; i < M; i++){
+		scanf("%d %d", &y[i], &x[i]);
+	}
+	for(h=1;h<L/2;h++){//그물
+		w = L / 2 - h;
+		for (i = 0; i < M; i++){//y좌표
+			y1 = y[i];
+			for (j = 0; j < M; j++){//x좌표
+				x1 = x[j];
+				cnt = 0;
+				for(k = 0; k < M; k++){//물고기
+					x2 = x1 + w;
+					y2 = y1 + h;
+					if ( x[k]>=x1 && x[k]<=x2 && y[k]>=y1 && y[k]<=y2) cnt++;
+				}
+				if (max < cnt) max = cnt;
+			}
+		}
+	}
+	printf("%d", max);
+	return 0;
+}
+#endif
+//장기
+#if 0
+#include <stdio.h>
+typedef struct {
+	int r, c, cnt;
+}QUE;
+QUE que[110 * 110];
+int rp, wp;
+int R, C, sr, sc, er, ec;
+int map[110][110];
+int dr[8] = {-2,-1,1,2,2,1,-1,2};
+int dc[8] = {1,2,2,1,-1,-2,-2,-1};
+void In_Queue(int r, int c, int cnt){
+	que[wp].r = r;
+	que[wp].c = c;
+	que[wp].cnt = cnt;
+	wp++;
+}
+int BFS(void){
+	int i, nr, nc;
+	QUE q;
+	In_Queue(sr, sc, 0);
+	map[sr][sc] = 1;
+	while (rp < wp){
+		q = que[rp++];//큐에서 읽기
+		if (q.r == er && q.c == ec) return q.cnt;//졸을 잡으면 리턴
+		for (i = 0; i < 8; i++){//8방향
+			nr = q.r + dr[i];
+			nc = q.c + dc[i];
+			if (nr<1 || nr>R || nc<1 || nc>C) continue;//맵벗어났으면 스킵
+			if (map[nr][nc] == 0){//빈자리이면
+				In_Queue(nr, nc, q.cnt + 1);
+				map[nr][nc] = 1;
+			}
+		}
+	}
+	return -1;
+}
+int main(void){
+	scanf("%d %d", &R, &C);
+	scanf("%d %d %d %d", &sr, &sc, &er, &ec);
+	printf("%d", BFS());
+	return 0;
+}
+#endif
+
+//보물섬
+#if 01
+#include <stdio.h>
+typedef struct {
+	int r, c, time;
+}QUE;
+QUE que[60 * 60];
+int rp, wp;
+int R, C;
+char map[60][60];
+int visit[60][60];//방문표시
+int dr[4] = {-1, 1, 0, 0};
+int dc[4] = {0, 0, -1, 1};
+void In_Queue(int r, int c, int time){
+	que[wp].r = r;
+	que[wp].c = c;
+	que[wp].time = time;
+	wp++;
+}
+int BFS(int sr, int sc){
+	int i, nr, nc;
+	QUE q;
+	In_Queue(sr, sc, 0);
+	visit[sr][sc] = 1;
+	while (rp < wp){
+		q = que[rp++];//큐에서 읽기
+		for (i = 0; i < 4; i++){
+			nr = q.r + dr[i];
+			nc = q.c + dc[i];
+			if (nr < 0 || nr >= R || nc < 0 || nc >= C) continue;
+			if (map[nr][nc] == 'L' && visit[nr][nc] == 0) {//방문하지 않을 육지라면
+				In_Queue(nr, nc, q.time + 1);
+				visit[nr][nc] = 1;
+			}
+		}
+	}
+	return q.time;//막다른 육지의 최단 시간을 리턴
+}
+void init(void){
+	int i, j;
+	for (i = 0; i < R; i++){
+		for (j = 0; j < C; j++){
+			visit[i][j] = 0;
+		}
+	}
+	rp = wp = 0;
+}
+int main(void){
+	int i, j, time, max = 0;
+	scanf("%d %d", &R, &C);
+	for (i = 0; i < R; i++){
+		scanf("%s", map[i]);
+	}
+	for (i = 0; i < R; i++){
+		for (j = 0; j < C; j++){
+			if (map[i][j] == 'L'){//모든 육지위치에서 시작
+				init();//큐와 visit배열 초기화
+				time = BFS(i, j);//최단시간 리턴 받음
+				if (max < time) max = time;
+			}
+		}
+	}
+	printf("%d", max);
+return 0;
+}
+#endif
+
+//1~N합계
+#if 0
+#include <stdio.h>
+int N;
+int add(int i){
+	if (i == N) return i;
+	//int sum = add(i + 1);
+	return add(i + 1) + i;
+}
+int main(void){
+	scanf("%d", &N);
+	printf("%d", add(1));
+	return 0;
+}
+#endif
+//피보나치수열
+#if 0
+#include <stdio.h>
+int N;
+int a[41];
+int fibo(int n){
+	if (n == 2 || n == 1) return 1;
+	if (a[n]) return a[n];//가지치기
+	return a[n]=fibo(n - 1) + fibo(n - 2);
+}
+int main(void){
+	scanf("%d", &N);
+	printf("%d", fibo(N));
+	return 0;
+}
+#endif
+//단지번호붙이기
+#if 0
+#include <stdio.h>
+int map[30][30];
+int dan[30 * 30];//단지별 집 개수 기록 배열
+int dcnt, house;//단지카운트, 집카운트
+int N;
+int dr[4] = {-1, 1, 0, 0}, dc[4] = {0, 0, -1, 1};//상하좌우 증감치
+void FF(int r, int c){
+	int i, nr, nc;
+	//if (r<1 || r>N || c<1 || c>N) return;//맵벗어나면 리턴
+	//if (map[r][c] != 1) return;//집이 아니면 리턴
+	map[r][c] = 0;//방문표시
+	house++;//집의 개수 카운트
+	for (i = 0; i < 4; i++){//4방향
+		nr = r + dr[i];
+		nc = c + dc[i];
+		if (nr<1 || nr>N || nc<1 || nc>N) continue;
+		if (map[nr][nc] == 1)FF(nr, nc);//다음좌표로 이동
+	}
+	//if (map[r - 1][c] == 1) FF(r - 1, c);//상
+	//if (map[r + 1][c] == 1) FF(r + 1, c);//하
+	//if (map[r][c-1] == 1) FF(r, c-1);//좌
+	//if (map[r][c+1] == 1) FF(r, c+1);//우
+}
+void sort(void){
+	int i, j, temp;
+	for (i = 0; i < dcnt - 1; i++){
+		for (j = i + 1; j < dcnt; j++){
+			if (dan[i] > dan[j]){
+				temp = dan[i];
+				dan[i] = dan[j];
+				dan[j] = temp;
+			}
+		}
+	}
+}
+int main(void){
+	int i, j;
+	scanf("%d", &N);
+	for (i = 1; i <= N; i++){
+		for (j = 1; j <= N; j++){
+			scanf("%1d", &map[i][j]);
+		}
+	}
+	for (i = 1; i <= N; i++){
+		for (j = 1; j <= N; j++){
+			if (map[i][j] == 1) {//집의 위치에서 시작
+				house = 0;
+				FF(i, j);//행, 열의 좌표
+				dan[dcnt] = house;//단지별 집의 개수 기록
+				dcnt++;
+			}
+		}
+	}
+	//sort();//단지별 집 오름차순 정렬
+	printf("%d\n", dcnt);
+	for (i = 0; i < dcnt; i++) printf("%d\n", dan[i]);
+	return 0;
+}
+#endif
+
+//영역 구하기
+#if 01
+#include <stdio.h>
+int map[110][110];
+int area[110 * 110];
+int area_cnt, col_cnt;//영역의 개수, 칸의 개수
+int R, C, K;
+void marking(int sr, int sc, int er, int ec){
+	int i, j;
+	for (i = sr; i < er; i++){
+		for (j = sc; j < ec; j++){
+			map[i][j] = 1;
+		}
+	}
+}
+void sort(void){
+	int i, j, temp;
+	for (i = 0; i < area_cnt - 1; i++){
+		for (j = i + 1; j < area_cnt; j++){
+			if (area[i] > area[j]){
+				temp = area[i];
+				area[i] = area[j];
+				area[j] = temp;
+			}
+		}
+	}
+}
+void FF(int r, int c){
+	if (r < 0 || r >= R || c < 0 || c >= C) return;
+	if (map[r][c] !=0) return;//빈영역이 아니면 리턴
+	map[r][c] = 1;
+	col_cnt++;
+	FF(r - 1, c);//상
+	FF(r + 1, c);//하
+	FF(r, c-1);//좌
+	FF(r, c+1);//우
+}
+int main(void){
+	int i, j, sr, sc, er, ec;
+	scanf("%d %d %d", &C, &R, &K);//열의 개수, 행의 개수
+	for (i = 0; i < K; i++){
+		scanf("%d %d %d %d", &sr, &sc, &er, &ec);
+		marking(sr, sc, er, ec);//맵에 1로 마킹하기
+	}
+	for (i = 0; i < R; i++){
+		for (j = 0; j < C; j++){
+			if (map[i][j] == 0){//0인 영역을 시작으로
+				col_cnt = 0;
+				FF(i, j);
+				area[area_cnt++] = col_cnt;
+			}
+		}
+	}
+	sort();
+	printf("%d\n", area_cnt);
+	for(i=0;i<area_cnt;i++)printf("%d ", area[i]);
+	return 0;
+}
+#endif
+
+//미술관람대회
+#if 01
+#include <stdio.h>
+char map[110][110];
+int visit[110][110];
+int N;
+int dr[4] = {-1, 1, 0, 0}, dc[4] = {0, 0, -1, 1};
+void FF(int r, int c, char color){
+	int i, nr, nc;
+	if (r < 0 || r >= N || c < 0 || c >= N) return;
+	if (map[r][c] != color) return;//다른색이면 리턴
+	if (visit[r][c] == 1) return;//방문했으면 리턴
+	visit[r][c] = 1;
+	for (i = 0; i < 4; i++){
+		nr = r + dr[i]; nc = c + dc[i];
+		if (nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
+		if (map[nr][nc] == color && visit[nr][nc] == 0) FF(nr, nc, color);
+	}
+}
+int main(void){
+	int i, j, cnt1 = 0, cnt2=0;
+	scanf("%d", &N);
+	for (i = 0; i < N; i++){//0행 0열에 입력
+		scanf("%s", map[i]);
+	}
+	//정상인 경우의 영역탐색
+	for (i = 0; i < N; i++){
+		for (j = 0; j < N; j++){
+			if (visit[i][j] == 0){//방문안한 위치에서 시작
+				FF(i, j, map[i][j]);
+				cnt1++;
+			}
+		}
+	}
+	//적녹색맹인 경우의 영역 탐색
+	//녹색을 적색으로 통일하고 visit배열 초기화
+	for (i = 0; i < N; i++){
+		for (j = 0; j < N; j++){
+			if (map[i][j] == 'G') map[i][j] = 'R';
+			visit[i][j] = 0;
+		}
+	}
+	for (i = 0; i < N; i++){
+		for (j = 0; j < N; j++){
+			if (visit[i][j] == 0){//방문안한 위치에서 시작
+				FF(i, j, map[i][j]);
+				cnt2++;
+			}
+		}
+	}
+	printf("%d %d", cnt1, cnt2);
+	return 0;
+}
+#endif
+
+//주사위 던지기2
+#if 0
+#include <stdio.h>
+int N, M;
+int rec[10];
+void disp(void){
+	int i;
+	for (i = 1; i <= N; i++) printf("%d ", rec[i]);
+	printf("\n");
+}
+void DFS(int no, int sum){
+	int i;
+	if (no > N){
+		if (sum == M) disp();
+		return;
+	}
+	for (i = 1; i <= 6; i++){//눈
+		rec[no] = i;//현재 주사위의 눈을 기록
+		DFS(no + 1, sum+i);
+	}
+}
+
+//1] 눈의 중복한 중복순열로 모든 눈의 경우의 수를 인쇄
+void DFS1(int no){
+	int i;
+	if (no > N){
+		disp();
+		return;
+	}
+	for (i = 1; i <= 6; i++){//눈
+		rec[no] = i;//현재 주사위의 눈을 기록
+		DFS1(no + 1);
+	}
+}
+
+//2] 눈의 중복을 배제한 순열로 모든 눈의 경우의 수를 인쇄
+int chk[7];//눈 사용여부 체크
+void DFS2(int no){
+	int i;
+	if (no > N){
+		disp();
+		return;
+	}
+	for (i = 1; i <= 6; i++){//눈
+		if (chk[i] == 1) continue;//사용한 눈이면 스킵
+		chk[i] = 1;
+		rec[no] = i;//현재 주사위의 눈을 기록
+		DFS2(no + 1);
+		chk[i] = 0;
+	}
+}
+int main(void){
+	scanf("%d %d", &N, &M);
+	DFS(1, 0);//1번 주사위부터 시작, 눈의 합계는 0
+	//DFS1(1);//중복순열 
+	//DFS2(1);//눈 중복 배제한 순열
+	return 0;
+}
+#endif
+
+//구슬고르기3
+#if 0
+#include <stdio.h>
+int a[3] = { 2, 5, 7 }; // 구슬
+int b[3];     // 구슬을 담을 상자
+int chk[3];     // 체크배열
+int N = 3;      // 구슬은 3개
+void DFS(int n) { 
+	int i;
+	//1] 리턴조건 : 3개를 고른후 인쇄후 리턴
+	if (n >= N){
+		for (i = 0; i < N; i++) printf("%d ", b[i]);
+		printf("\n");
+		return;
+	}
+	//2] a배열에서 0부터 N전까지 고르는 모든 경우(단 구슬의 중복을 배제)
+	for (i = 0; i < N; i++){//a[i]
+		if (chk[i] == 1) continue;
+		chk[i] = 1;
+		b[n] = a[i];
+		DFS(n + 1);
+		chk[i] = 0;
+	}
+}
+int main(void)
+{
+	DFS(0); 
+}
+#endif
+
+//건물세우기 베이직
+#if 01
+#include <stdio.h>
+int map[20][20];
+int chk[20];//장소 체크
+int rec[20];
+int N, min, cnt;
+void disp(int sum, int cnt){
+	int i;
+	printf("cnt=%d ", cnt);
+	for (i = 1; i <= N; i++) printf("%d ", rec[i]);
+	printf("sum=%d\n", sum);
+}
+void DFS(int r, int sum){//현재건물(행)에서 모든 장소에 세워보는 경우의 수 시도
+	int i;
+	//if (sum > min) return;//가지치기
+	if (r > N){
+		//cnt++;
+		//disp(sum , cnt);
+		if (sum < min)min = sum;
+		return;
+	}
+	for (i = 1; i <= N; i++){//장소(열)
+		if (chk[i] == 1) continue;//장소중복체크
+		chk[i] = 1;
+		rec[r] = i;
+		DFS(r + 1, sum + map[r][i]);
+		chk[i] = 0;
+	}
+}
+int main(void){
+	int i, j;
+	scanf("%d", &N);
+	for (i = 1; i <= N; i++){
+		for (j = 1; j <= N; j++){
+			scanf("%d", &map[i][j]);
+		}
+	}
+	min = 0x7fffffff;
+	DFS(1, 0);//1번(1행)건물부터 시작, 비용은 0
+	printf("%d", min);
+	return 0;
+}
+#endif
+
+//엔퀸
+#if 01
+#include <stdio.h>
+int chk1[20], chk2[30], chk3[30];//세로, 좌상, 우상체크배열
+int map[20][20];
+int N, cnt;
+//1] check함수에서 루프로 체크하는 방법
+int check(int r, int c){
+	int i, j;
+	for (i = 0; i < r; i++){//세로방향체크
+		if (map[i][c] == 1) return 0;//퀸이 놓여있으면 실패
+	}
+	for (i = r - 1, j = c - 1; i >= 0 && j >= 0; i--, j--){	//좌상 방향 체크
+		if (map[i][j] == 1) return 0;
+	}
+	for (i = r - 1, j = c + 1; i >= 0 && j < N; i--, j++){//우상 방향 체크
+		if (map[i][j] == 1) return 0;
+	}
+	return 1;//성공
+}
+void DFS(int r){//현재 행에서 모든 열에 퀸을 놓아보는 경우의 수
+	int c;
+	if (r >= N){
+		cnt++;//체스 한판 완성
+		return;
+	}
+	for (c = 0; c < N; c++){//열
+		//2] 체크배열을 이용하여 for를 if 3번으로 개선한 방법
+		if (chk1[c]==1) continue;//세로방향 체크
+		if (chk2[r + c] == 1) continue;//우상방향 체크
+		if (chk3[(N-1) - (r- c)] == 1) continue;//좌상방향 체크
+		chk1[c] = chk2[r + c] = chk3[(N - 1) - (r - c)] = 1;//퀸놓기
+		DFS(r + 1);//다음행으로
+		chk1[c] = chk2[r + c] = chk3[(N - 1) - (r - c)] = 0;//퀸빼기
+
+		//if (check(r, c) == 1){//현재 위치에 퀸을 놓을 수 있으면
+		//	map[r][c] = 1;//퀸놓기
+		//	DFS(r + 1);//다음행에 퀸놓아보기
+		//	map[r][c] = 0;//퀸빼기
+		//}
+	}
+
+}
+int main(void){
+	scanf("%d", &N);
+	cnt = 0;
+	DFS(0);//0행부터 시작
+	printf("%d\n", cnt);
+	return 0;
+}
+#endif
+
+//못과 액자
+#if 01
+#include <stdio.h>
+typedef struct {
+	int r, c;
+}PIN;
+PIN pin[5];//못
+typedef struct {
+	int w, h;
+}PIC;
+PIC pic[5];//액자
+int pic_rec[5];//핀별 액자 기록
+int dir_rec[5];//액자별 방향 기록
+int chk[5];//액자 체크
+int map[110][110];
+int N, max;
+int area_calc(void){
+	int i, j, k, cnt = 0, h, w, sr, sc, no;
+	for (k = 1; k <= N; k++){//못
+		no = pic_rec[k];//현재못자리에 건 액자
+		if (dir_rec[no] == 1){//가로방향
+			w = pic[no].w;
+			h = pic[no].h;
+		}
+		else{//세로방향
+			w = pic[no].h;
+			h = pic[no].w;
+		}
+		sr = pin[k].r;
+		sc = pin[k].c - w / 2;
+		for (i = sr; i < sr + h; i++){
+			for (j = sc; j < sc + w; j++){
+				map[i][j] = 1;
+			}
+		}
+	}
+	//면적 계산
+	for (i = 0; i <= 100; i++){
+		for (j = 0; j <= 100; j++){
+			cnt += map[i][j];
+			map[i][j] = 0;//초기화
+		}
+	}
+	return cnt;
+}
+void DFS(int p){//현재 못자리에 1~N액자까지 순서를 고려하여 걸어보는 경우
+	if (p > N){
+		int area = area_calc();
+		if (area > max) max = area;
+		return;
+	}
+	for (int i = 1; i <= N; i++){//액자
+		if (chk[i] == 1) continue;
+		chk[i] = 1; //액자 체크
+		pic_rec[p] = i;
+		dir_rec[i] = 1;//가로방향걸기
+		DFS(p + 1);//다음 못으로
+		dir_rec[i] = 2;//세로방향걸기
+		DFS(p + 1);//다음 못으로
+		chk[i] = 0;//액자 해제
+	}
+}
+int main(void){
+	int i;
+	scanf("%d", &N);
+	for (i = 1; i <= N; i++)scanf("%d %d", &pin[i].c, &pin[i].r);
+	for (i = 1; i <= N; i++)scanf("%d %d", &pic[i].w, &pic[i].h);
+	max = 0;
+	DFS(1);//1번 못부터 시작
+	printf("%d", max);
+	return 0;
+}
+#endif
+
+//구슬고르기1
+#if 01
+#include <stdio.h>
+int a[3] = { 2, 5, 7 };   //구슬
+int b[3];          // 구슬을 담을 상자
+int N = 3;      // 구슬 3개
+void DFS(int no)    //no는 구슬(a배열의 index)
+{
+	//1] 리턴조건 : N번째이면 인쇄후 리턴
+	if (no >= N){
+		for (int i = 0; i < N; i++) printf("%d ", b[i]);
+		printf("\n");
+		return;
+	}
+	//2] 현재구슬을 고르기(b배열에 담기)
+	b[no] = a[no];
+	DFS(no + 1);
+	//3] 현재 구슬을 고르지 않기(b배열에 담지 않기)
+	b[no] = 0;
+	DFS(no + 1);
+}
+//2] 3개중에서 2개고르기
+void DFS2(int no, int cnt)    //no는 구슬(a배열의 index)
+{
+	if (no >= N){
+		if (cnt == 2){
+			for (int i = 0; i < N; i++) printf("%d ", b[i]);
+			printf("\n");
+		}
+		return;
+	}
+	b[cnt] = a[no];//2] 현재구슬을 고르기(b배열에 담기)
+	DFS2(no + 1, cnt+1);
+	b[cnt] = 0;//3] 현재 구슬을 고르지 않기(b배열에 담지 않기)
+	DFS2(no + 1, cnt);
+}
+int main(void)
+{
+	DFS(0);   //a[0]번 구슬부터 조합
+	//DFS2(0, 0);//0번 요소부터 시작, 개수는 0개
+}
+#endif
+
+//더하기
+#if 01
+#include <stdio.h>
+int arr[21];
+int rec[21];//기록
+int N, K, flag;
+void disp(void){
+	for (int i = 0; i < N; i++) printf("%d ", rec[i]);
+	printf("\n");
+}
+void DFS(int n, int sum){
+	//현재 n번째 자연수를 더하거나 더하지 않는 경우의 수
+	if (n >= N){
+		if (sum == K){
+			//disp();
+			flag = 1;
+		}
+		return;
+	}
+	rec[n] = arr[n];
+	DFS(n + 1, sum + arr[n]);//더하기
+	rec[n] = 0;
+	DFS(n + 1, sum );//더하지 않기
+}
+int main(void){
+	int ti, T;
+	scanf("%d", &T);
+	for (ti = 0; ti < T; ti++){
+		int i;
+		scanf("%d %d", &N, &K);
+		for (i = 0; i < N; i++) scanf("%d", &arr[i]);
+		flag = 0;
+		DFS(0, 0);//0번 요소부터 시작, 합계는 0
+		if (flag == 1) printf("YES\n");
+		else printf("NO\n");
+	}
+	return 0;
+}
+#endif
+
+//더하기 (성공즉시 탈출)
+#if 01
+#include <stdio.h>
+int arr[21];
+int rec[21];//기록
+int N, K, flag;
+void disp(void){
+	for (int i = 0; i < N; i++) printf("%d ", rec[i]);
+	printf("\n");
+}
+
+int DFS(int n, int sum){
+	//현재 n번째 자연수를 더하거나 더하지 않는 경우의 수
+	if (sum == K) return 1;
+	if (n >= N)	return 0;
+	if (sum > K) return 0;
+	rec[n] = arr[n];
+	if (DFS(n + 1, sum + arr[n]) ) return 1;
+	rec[n] = 0;
+	if (DFS(n + 1, sum) ) return 1;
+	return 0;
+}
+int main(void){
+	int ti, T;
+	scanf("%d", &T);
+	for (ti = 0; ti < T; ti++){
+		int i;
+		scanf("%d %d", &N, &K);
+		for (i = 0; i < N; i++) scanf("%d", &arr[i]);
+		flag=DFS(0, 0);//0번 요소부터 시작, 합계는 0
+		if (flag == 1) printf("YES\n");
+		else printf("NO\n");
+	}
+	return 0;
+}
+#endif
+
+// 퍼킷
+#if 0
+#include <stdio.h>
+#define ABS(x) (((x)<0)?-(x):(x))
+int S[11], B[11];
+int rec[11];
+int N, min;
+void disp(int mul, int sum){
+	for (int i = 0; i < N; i++)printf("%d ", rec[i]);
+	printf("mul=%d, sum=%d\n", mul, sum);
+}
+void DFS(int n, int mul, int sum){
+	if (n >= N){
+		//disp(mul, sum);
+		int temp = ABS(mul - sum);
+		if (sum>0 && min > temp) min = temp;//1개이상 재료를 섞었을 경우만 min비교
+		return;
+	}
+	rec[n] = n+1;
+	DFS(n + 1, mul*S[n], sum + B[n]);//현 재료를 섞기
+	rec[n] = 0;
+	DFS(n + 1, mul, sum);//현 재료를 섞지 않기
+}
+int main(void){
+	int i;
+	scanf("%d", &N);
+	for (i = 0; i < N; i++) scanf("%d %d", &S[i], &B[i]);
+	min = 0x7fffffff;
+	DFS(0, 1, 0);//0번요소부터 시작, 신맛의 초기값 1, 쓴맛의 초기값 0
+	printf("%d", min);
+	return 0;
+}
+#endif
+
+//양팔저울(베이직)
+#if 01
+#include <stdio.h>
+int ball[20], chu[20];
+int rec[20];
+int BN, CN;//볼개수, 추개수
+int flag;
+void disp(int Lsum, int Rsum){
+	for (int i = 0; i < CN; i++)printf("%4d ", rec[i]);
+	printf("L=%d, R=%d\n", Lsum, Rsum);
+}
+void DFS(int n, int Lsum, int Rsum){
+	//현재 추로 왼쪽, 오른쪽에 올려보거나 올리지 않기
+	if (n >= CN){
+		//disp(Lsum, Rsum);
+		if (Lsum == Rsum) flag = 1;
+		return;
+	}
+	rec[n] = chu[n];
+	DFS(n+1, Lsum+ chu[n], Rsum);//현재 추를 왼쪽저울에 올리기
+	rec[n] = -chu[n];
+	DFS(n + 1, Lsum, Rsum + chu[n]);//현재 추를 오른쪽저울에 올리기
+	rec[n] = 0;
+	DFS(n + 1, Lsum , Rsum);//현재 추를 올리지 않기
+}
+int main(void){
+	int i;
+	scanf("%d", &CN);
+	for (i = 0; i < CN; i++) scanf("%d", &chu[i]);
+	scanf("%d", &BN);
+	for (i = 0; i < BN; i++) scanf("%d", &ball[i]);
+
+	for (i = 0; i < BN; i++){
+		flag = 0;
+		DFS(0, ball[i], 0);//0번 추부터 시작, 왼쪽저울에 볼을 초기값으로, 오른쪽저울 0
+		if (flag) printf("Y\n");
+		else printf("N\n");
+	}
+
+
+	return 0;
+}
+#endif
+
+
+//주사위 던지기1
+#if 01
+#include <stdio.h>
+int rec[10];
+int chk[7];//눈의 중복체크
+int N, M;
+void disp(void){
+	for (int i = 1; i <= N; i++) printf("%d ", rec[i]);
+	printf("\n");
+}
+void DFS1(int no){//눈의 중복한 중복 순열
+	if (no > N){
+		disp();
+		return;
+	}
+	for (int i = 1; i <= 6; i++){//눈
+		rec[no] = i;
+		DFS1(no + 1);
+	}
+}
+void DFS3(int no){//눈의 중복 배제한 순열
+	if (no > N){
+		disp();
+		return;
+	}
+	for (int i = 1; i <= 6; i++){//눈
+		if (chk[i] == 1) continue;//눈의 중복 체크
+		chk[i] = 1;
+		rec[no] = i;
+		DFS3(no + 1);
+		chk[i] = 0;
+	}
+}
+void DFS2(int no, int start){//눈의 중복한 중복 조합
+	if (no > N){
+		disp();
+		return;
+	}
+	for (int i = start; i <= 6; i++){//눈
+		rec[no] = i;
+		DFS2(no + 1, i);//같은 눈부터 시도
+	}
+}
+void DFS4(int no, int start){//눈의 중복 배제한 조합
+	if (no > N){
+		disp();
+		return;
+	}
+	for (int i = start; i <= 6; i++){//눈
+		rec[no] = i;
+		DFS4(no + 1, i+1);//다음 눈부터 시도
+	}
+}
+int main(void){
+	scanf("%d %d", &N, &M);
+	if (M == 1) DFS1(1);//중복순열 : 1번 주사위부터시작
+	else if (M == 3) DFS3(1);//순열 : 1번 주사위부터시작
+	else if (M == 2) DFS2(1, 1);//중복조합 : 1번 주사위, 1번 눈부터
+	else if (M == 4) DFS4(1, 1);//조합 : 1번 주사위, 1번 눈부터
+	return 0;
+}
+#endif
+
+//sumset2
+#if 01
+#include <stdio.h>
+int a[7] = { 1, 2, 4, 8, 16, 32, 64 };
+int rec[70];
+int N = 7, K, sol;
+void disp(int cnt){
+	for (int i = 0; i < cnt; i++)printf("%d ", rec[i]);
+	printf("\n");
+}
+void DFS(int no, int start, int sum){//no번째 고르는 경우
+	//start~N전까지 제곱수를 중복으로 더하는 경우
+	if (sum == K){
+		disp(no);
+		sol++;
+		return;
+	}
+	if (sum > K) return;//깊이 제한
+	for (int i = start; i < N; i++){//제곱수
+		rec[no] = a[i];
+		DFS(no + 1, i, sum + a[i]);
+	}
+}
+void DFS2(int no, int sum){
+	//현no번째 제곱수를 0개에서 K를 초과하기 전까지 개수별로 시도
+	if (sum == K){
+		//disp(N);
+		sol++;
+		return;
+	}
+	if (no >= N || sum>K) return;
+	for (int i = 0;; i++){//개수
+		if (sum + a[no] * i > K) break;
+		rec[no] = i;
+		DFS2(no + 1, sum + a[no] * i);
+		rec[no] = 0;
+	}
+}
+int main(void){
+	int ti, T;
+	scanf("%d", &T);
+	for (ti = 0; ti < T; ti++){
+		scanf("%d", &K);
+		sol = 0;//K가 되는 경우의 개수
+		DFS(0, 0, 0);//0개부터, 0번 제곱수부터시작, 합계는 0
+		//DFS2(0, 0);//0번 제곱수부터 시작, 합계는 0
+		printf("%d\n", sol);
+	}
+	return 0;
+}
+#endif
+
+
+//도자기( 재료의 개수를 카운트하여 M개만큼만 개수로 시도)
+#if 0
+#include <stdio.h>
+int arr[20];
+int cnt[30];// 26개의 재료별 카운트
+int rec[30];//기록용
+int N, M, sol;
+void disp(void){
+	for (int i = 1; i <= 26; i++) printf("%d ", cnt[i]);
+	printf("\n");
+}
+//개수별로 재료를 담고 가는 경우
+void DFS(int n, int start){//n번째 고르는 경우의 시도
+	if (n == M){
+		//disp();
+		sol++;
+		return;
+	}
+	for (int i = start; i <= 26; i++){//cnt[start]~cnt[26]재료별 있는 재료만 시도
+		if (cnt[i] == 0) continue;
+		cnt[i]--;
+		DFS(n + 1, i);//다음 고르는 경우 같은 재료부터 시작
+		cnt[i]++;
+	}
+}
+
+int main(void){
+	int ti, T;
+	scanf("%d", &T);
+	for (ti = 0; ti < T; ti++){
+		int i;
+		scanf("%d %d", &N, &M);
+		for (i = 1; i <= 26; i++) cnt[i] = 0; //초기화
+		for (i = 0; i < N; i++){
+			scanf("%d", &arr[i]);
+			cnt[arr[i]]++;//재료별로 카운트
+		}
+		sol = 0;
+		DFS(0, 1);//고른개수 0개, 1재료부터 시작
+		printf("%d\n", sol);
+	}
+	return 0;
+}
+#endif
+
+//도자기 ( 재료를 정렬하여 순서대로 이전재료와 다른 재료만 담아보는 시도)
+#if 01
+#include <stdio.h>
+int arr[20];
+int rec[30];
+int N, M, sol;
+void disp(void){
+	for (int i = 0; i <N; i++) printf("%d ", rec[i]);
+	printf("\n");
+}
+//n번째 고르는 경우 이전의 재료가 아닌 경우만 담고 가는 경우
+void DFS(int n, int start){
+	int i, prev = 0;//이전 재료 백업용
+	if (n == M){
+		//disp();
+		sol++;
+		return;
+	}
+	for (i = start; i < N; i++){//arr[start] ~ arr[N-1]까지 순서대로 재료를 사용
+		if (prev != arr[i]){//이전 재료와 다를경우만 시도
+			prev = arr[i];//백업
+			rec[n] = arr[i];//기록
+			DFS(n + 1, i + 1);//순서대로 내 다음 재료 시도
+		}
+	}
+}
+
+void sort(void){
+	int i, j, temp;
+	for (i = 0; i < N; i++){
+		for (j = i + 1; j < N; j++){
+			if (arr[i] > arr[j]){
+				temp = arr[i];
+				arr[i] = arr[j];
+				arr[j] = temp;
+			}
+		}
+	}
+}
+int main(void){
+	int ti, T;
+	scanf("%d", &T);
+	for (ti = 0; ti < T; ti++){
+		int i;
+		scanf("%d %d", &N, &M);
+		for (i = 0; i < N; i++){
+			scanf("%d", &arr[i]);
+		}
+		sort();
+		DFS(0, 0);//0개, [0]재료부터 시작
+		printf("%d\n", sol);
+	}
+	return 0;
+}
+#endif
+
+//로봇
+#if 01
+#include <stdio.h>
+typedef struct{
+	int r, c, dir, cnt;
+}QUE;
+QUE que[110 * 110 * 4];
+int rp, wp;
+int map[110][110];
+int visit[5][110][110];//동서남북 1면~4면까지 체크배열
+int R, C, sr, sc, sdir, er, ec, edir;
+int dr[5] = { 0, 0, 0, 1, -1 };//동서남북(1~4)
+int dc[5] = { 0, 1, -1, 0, 0 };
+int turn[5][2] = { {0,0}, {4, 3}, {3, 4}, {1,2}, {2,1} };//동서남북(1~4행), 0열 왼쪽턴, 1열 오른쪽턴
+void In_Queue(int r, int c, int dir, int cnt){
+	que[wp].r = r;
+	que[wp].c = c;
+	que[wp].dir = dir;
+	que[wp].cnt = cnt;
+	wp++;
+}
+int BFS(void){
+	int i, nr, nc, ndir;
+	QUE q;
+	In_Queue(sr, sc, sdir, 0);
+	visit[sdir][sr][sc] = 1;
+	while (rp < wp){
+		q = que[rp++];//큐에서 읽기
+		if (q.r == er && q.c == ec && q.dir == edir) return q.cnt;
+		//1] go 1, 2,3
+		for (i = 1; i <= 3; i++){
+			nr = q.r + dr[q.dir] * i;
+			nc = q.c + dc[q.dir] * i;		
+			if (nr<1 || nr>R || nc<1 || nc>C) continue;//다음 가볼좌표의 맵의 범위체크
+			if (visit[q.dir][nr][nc] == 1) continue;//방문표시 체크
+			if (map[nr][nc] == 1) break;//길이 아니면 탈출
+			In_Queue(nr, nc, q.dir, q.cnt + 1);
+			visit[q.dir][nr][nc] = 1;
+		}
+		//2] turn left, right
+		for (i = 0; i < 2; i++){//0은 왼쪽턴, 1은 오른쪽턴
+			ndir = turn[q.dir][i];//턴한 다음 방향
+			if (visit[ndir][q.r][q.c] == 1) continue;// 다음 방향의 방문체크
+			In_Queue(q.r, q.c, ndir, q.cnt + 1);
+			visit[ndir][q.r][q.c] = 1;
+		}
+	}
+}
+int main(void){
+	int i, j;
+	scanf("%d %d", &R, &C);
+	for (i = 1; i <= R; i++){
+		for (j = 1; j <= C; j++){
+			scanf("%d", &map[i][j]);
+		}
+	}
+	scanf("%d %d %d", &sr, &sc, &sdir);
+	scanf("%d %d %d", &er, &ec, &edir);
+	printf("%d", BFS());//최소명령횟수를 리턴받음
+	return 0;
+}
+#endif
